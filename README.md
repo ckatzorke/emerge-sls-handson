@@ -82,7 +82,7 @@ Create testdata/data.json
 
 ```json
 {
-	“name”: “emerge2019”
+	"name": "emerge2019"
 }
 ```
 
@@ -171,7 +171,7 @@ Create `webpack.config.js` (in root directory)
 ```js
 const path = require("path");
 const slsw = require("serverless-webpack");
- 
+
 module.exports = {
   entry: slsw.lib.entries,
   target: "node",
@@ -188,5 +188,3 @@ module.exports = {
 Run `sls package` and compare zips:  
 Before: ~ 64 kB  
 After: 2.3kB
-
-
