@@ -94,6 +94,7 @@ functions:
             - GET
             - POST
           authLevel: anonymous
+          
   storageBlob:
     handler: src/handlers/storageBlob.printMessage
     events:

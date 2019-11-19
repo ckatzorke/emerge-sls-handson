@@ -188,3 +188,124 @@ module.exports = {
 Run `sls package` and compare zips:  
 Before: ~ 64 kB  
 After: 2.3kB
+
+## Add a different binding - Blob Storage Trigger
+
+We want to change the event trigger from a simple http event to a trigger executed whenever an item is uploaded to blob storage.  
+*Note* You can use Blob Storage event trigger or event grid event trigger. Event Grid has several advantages, for more information about Event Grid look [here](https://azure.microsoft.com/en-us/services/event-grid/).  
+However, for simplicity wie will us a blob trigger - you will need a general purpose storage account for this, which we will create first.
+
+### Create Storage Account and Container
+
+Create all necessary resources:
+
+```bash
+# First, create a resource group
+export rg=rg-sls-emerge
+az group create -l westeurope -n $rg
+
+# Create a general purpose Storage Account - this is needed for the blob trigger event
+# make sure to use a somehow unique name, sinde a global URL is generated for the storage
+export storage=slsemergestorage
+az storage account create --name $storage --location westeurope \ 
+--resource-group $rg --sku Standard_LRS --kind StorageV2
+
+# Create a container. A container is a bucket for blobs
+export container=emerge
+az storage container create --account-name $storage --name $container
+```
+
+### Register the extension
+
+Since the blobTrigger is not enabled by default (only http and timer is), we need to enable the extensions.  
+Edit the `host.json` (in your root folder) to match
+
+```json
+{
+  "version": "2.0",
+  "extensionBundle": {
+    "id": "Microsoft.Azure.Functions.ExtensionBundle",
+    "version": "[1.*, 2.0.0)"
+  }
+}
+```
+
+### Register the handler
+
+Now we need to add the handler to `serverless.yml`, after the `goodbye`handler:
+
+```yml
+  blobStorage:
+    handler: src/handlers/storageBlob.printMessage
+    events:
+      - blob:
+        x-azure-settings:
+          name: blob # Specifies which name is available on `context`
+          path: emerge/{blobName}
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+```
+
+### Create the handler
+
+Create the file `src/handlers/storageBlob.js`  
+
+```js
+'use strict';
+
+module.exports.printMessage = async function(context, blob, blobName) {
+  context.log(`Blob received!`);
+  context.done();
+};
+ ```
+
+### Local invocation
+
+We need to configure the function to connect to the storageaccount/container to get events on new blobs uploaded.
+In the serverless.yml file, you cann see the `x-azure-settings` section, and the property `connection` - this will link to the appsetting containing the connection string to the container.  
+We will need to set this locally, and add it to `local.settings.json`.  
+Note that the file will be bootstrapped when running `sls create...` and is in the `.gitignore` list.
+
+```bash
+az storage account show-connection-string --resource-group $rg \
+--name $storage --query connectionString --output tsv
+```
+
+This should yield something like `DefaultEndpointsProtocol=https;EndpointSuffix=core.windows.net;AccountName=slsemergestorage;AccountKey=kjakwjnmqwmwllllldkU1yp2mKrC4U4BcQnW6GQN+wwwwssdwwq==`
+
+Local.settings.json  
+
+```json
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;EndpointSuffix=core.windows.net;AccountName=slsemergestorage;AccountKey=kclasjdhkjabskbwqjbkjewqhejRdKW2gaLLFqxFVpBaOOsdROl0gw9cw==",
+    "FUNCTIONS_WORKER_RUNTIME": "node"
+  }
+}
+```
+
+Now add some images
+export AZURE_STORAGE_ACCOUNT=$storage
+export AZURE_STORAGE_KEY=kclwrPkUEeKRra9MshbFwipudmJXy3tN9u1yp2mKrC4U4BcQnW6GQN+ajegrtsfwcw==
+az storage blob copy start --destination-container emerge --destination-blob=cat.jpg --source-uri https://cataas.com/cat
+
+
+
+Asciify
+
+npm install asciify-image --save
+
+Serverless.yml
+  storageBlob:
+    handler: src/handlers/storageBlob.asciify
+    events:
+      - blob:
+        x-azure-settings:
+          name: blob # Specifies which name is available on `context`
+          path: emerge/{blobName}
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+
+
+Source
+
+
