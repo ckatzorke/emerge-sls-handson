@@ -120,6 +120,7 @@ This will yield something like
   "tenant": "8a1a8f97-85cc-41c2-851e-ef32aed34110"
 }
 ```
+**Note that the password cannot be retrieved later!** If you cant remember the credentials, you need toreset your principal with `az ad sp credential reset --name http://emerge-2019-serverless`.
 
 Export some values as environment variables
 
@@ -270,31 +271,39 @@ az storage account show-connection-string --resource-group $rg \
 --name $storage --query connectionString --output tsv
 ```
 
-This should yield something like `DefaultEndpointsProtocol=https;EndpointSuffix=core.windows.net;AccountName=slsemergestorage;AccountKey=kjakwjnmqwmwllllldkU1yp2mKrC4U4BcQnW6GQN+wwwwssdwwq==`
+This should yield something like `DefaultEndpointsProtocol=https;EndpointSuffix=core.windows.net;AccountName=slsemergestorage;AccountKey=ZG9uJ3QteW91LWRhcmUtdG8tZGVjb2RlLXRoaXMtOy0p`
 
-Local.settings.json  
+local.settings.json  
 
 ```json
 {
   "IsEncrypted": false,
   "Values": {
-    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;EndpointSuffix=core.windows.net;AccountName=slsemergestorage;AccountKey=kclasjdhkjabskbwqjbkjewqhejRdKW2gaLLFqxFVpBaOOsdROl0gw9cw==",
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;EndpointSuffix=core.windows.net;AccountName=slsemergestorage;AccountKey=ZG9uJ3QteW91LWRhcmUtdG8tZGVjb2RlLXRoaXMtOy0p",
     "FUNCTIONS_WORKER_RUNTIME": "node"
   }
 }
 ```
 
-Now add some images
+### Add some images
+
+```bash
 export AZURE_STORAGE_ACCOUNT=$storage
-export AZURE_STORAGE_KEY=kclwrPkUEeKRra9MshbFwipudmJXy3tN9u1yp2mKrC4U4BcQnW6GQN+ajegrtsfwcw==
+export AZURE_STORAGE_KEY=ZG9uJ3QteW91LWRhcmUtdG8tZGVjb2RlLXRoaXMtOy0p
 az storage blob copy start --destination-container emerge --destination-blob=cat.jpg --source-uri https://cataas.com/cat
+```
 
+### Thumbnail
 
+https://www.npmjs.com/package/image-thumbnail
 
-Asciify
+### Asciify
 
+```bash
 npm install asciify-image --save
+```
 
+```yaml
 Serverless.yml
   storageBlob:
     handler: src/handlers/storageBlob.asciify
@@ -304,8 +313,6 @@ Serverless.yml
           name: blob # Specifies which name is available on `context`
           path: emerge/{blobName}
           connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
-
+```
 
 Source
-
-
