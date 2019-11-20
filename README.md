@@ -22,13 +22,25 @@ cd emerge-sls-handson && npm install
 
 ## Serverless.yml
 
-Modify `serverless.yml`, change the region accoring your local region (like Wst Europe) and change the prefix to make sure generated resources are more unique.
-Look at ethe defined handlers.
+Modify `serverless.yml`, change the region according your local region (like West Europe for me) and change the prefix to make sure generated resources are more unique.  
+Serverless wil use the prefix for autogenerating the resources that are automatically created, like resource group, storage account etc. For storage accounts for example, the name must be **globally** unique, since an URL is generated (https://<storageaccountname>.blob.core.windows.net).
+
+```yaml
+service: emerge-sls-handson
+
+provider:
+  name: azure
+  region: West Europe
+  runtime: nodejs10.x
+  prefix: emerge
+```
+
+Let's take a look at the defined handlers.
 
 ## Handlers
 
-Two handlers are auto generated, hello and goodbye.
-Let's add POST binding to the http event:
+Two handlers are auto generated, `hello` and `goodbye`. You can find the source code in `src/handlers/hello.js` and `src/handlers/goodbye.js` respectively.  
+Add POST binding to the http events, so we can post our payload (beside using GET):
 
 ```yml
 functions:
@@ -55,34 +67,37 @@ functions:
 
 ## Invoke locally
 
-You can start a local function handler with
+Serverless provides you the possibility to test and invoke your functions locally (without deploying them first). You can achieve the same with Azure tooling, serverless provides you a godd abstraction about provider specific information.  
+
+Start a local function handler with
 
 ```bash
 sls offline
 ```
+and see the magic happen. After some time, it will prompt the local endpoints, and signals its readiness.
 
-You can use CURL to test the function
+You can use CURL to test the function (using either GET or POST)
 
 ```bash
 curl http://localhost:7071/api/hello?name=hello
 curl -X POST -d '{ "name": "emerge" }' http://localhost:7071/api/goodbye
 ```
 
-Aletrantively you can use the `sls` tool
+Aletrantively, you can use the `sls` tool
 
 ```bash
 sls invoke local -f hello -d '{ "name": "Christian" }'
 ```
 
-Note that it is invoked using query parameters, even if we are using a json payload, neat)
+*(Note that it is invoked using query parameters, even if we are using a json payload, neat)*
 
 ### Using POST data
 
-Create testdata/data.json
+Create a file `testdata/data.json`
 
 ```json
 {
-	"name": "emerge2019"
+  "name": "emerge2019"
 }
 ```
 
@@ -94,7 +109,10 @@ sls invoke local -f hello -p testdata/data.json -m POST
 
 ## Deploy
 
-Now we want to deploy to azure. First we need a service-principal
+Now we want to deploy to azure.  
+There are some steps necessary
+
+First, we need a service-principal
 
 Login to azure cli
 

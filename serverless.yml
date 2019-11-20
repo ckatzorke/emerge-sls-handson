@@ -94,9 +94,9 @@ functions:
             - GET
             - POST
           authLevel: anonymous
-          
+
   storageBlob:
-    handler: src/handlers/storageBlob.printMessage
+    handler: src/handlers/storageBlob.thumbnail
     events:
       - blob:
         x-azure-settings:
