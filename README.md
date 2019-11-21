@@ -141,7 +141,8 @@ This will yield something like
 ```
 **Note that the password cannot be retrieved later!** If you cant remember the credentials, you need to reset your principal with `az ad sp credential reset --name http://emerge-2019-serverless`.
 
-Export some values as environment variables
+Export some values as environment variables, these will be needed by the serverless framework to do the deployments.  
+You can already imagine how this would integrate nicely into a CI/CD system...
 
 ```bash
 export AZURE_SUBSCRIPTION_ID='f2d8e35b-7bea-44ac-adb3-1f5046995578'
