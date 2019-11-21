@@ -228,12 +228,10 @@ az group create -l westeurope -n $rg
 # Create a general purpose Storage Account - this is needed for the blob trigger event
 # make sure to use a somehow unique name, sinde a global URL is generated for the storage
 export storage=slsemergestorage
-az storage account create --name $storage --location westeurope \ 
---resource-group $rg --sku Standard_LRS --kind StorageV2
+az storage account create --name $storage --location westeurope --resource-group $rg --sku Standard_LRS --kind StorageV2
 
 # Create a container. A container is a bucket for blobs
-export container=emerge
-az storage container create --account-name $storage --name $container
+az storage container create --account-name $storage --name emerge
 ```
 
 ### Register the extension
@@ -273,7 +271,7 @@ Create the file `src/handlers/storageBlob.js`
 ```js
 'use strict';
 
-module.exports.printMessage = async function(context, blob, blobName) {
+module.exports.printMessage = async function(context, blob) {
   context.log(`Blob received!`);
   context.done();
 };
@@ -287,8 +285,7 @@ We will need to set this locally, and add it to `local.settings.json`.
 Note that the file will be bootstrapped when running `sls create...` and is in the `.gitignore` list.
 
 ```bash
-az storage account show-connection-string --resource-group $rg \
---name $storage --query connectionString --output tsv
+az storage account show-connection-string --resource-group $rg --name $storage --query connectionString --output tsv
 ```
 
 This should yield something like `DefaultEndpointsProtocol=https;EndpointSuffix=core.windows.net;AccountName=slsemergestorage;AccountKey=ZG9uJ3QteW91LWRhcmUtdG8tZGVjb2RlLXRoaXMtOy0p`
@@ -305,12 +302,14 @@ local.settings.json
 }
 ```
 
+Run it locally using `sls offline`.
+
 ### Add some images
 
 ```bash
-export AZURE_STORAGE_ACCOUNT=$storage
+export AZURE_STORAGE_ACCOUNT=emerge
 export AZURE_STORAGE_KEY=ZG9uJ3QteW91LWRhcmUtdG8tZGVjb2RlLXRoaXMtOy0p
-az storage blob copy start --destination-container emerge --destination-blob=cat.jpg --source-uri https://cataas.com/cat
+az storage blob copy start --destination-container emerge --account-name=$storage --account-key=$AZURE_STORAGE_KEY --destination-blob=cat.jpg --source-uri https://cataas.com/cat
 ```
 
 ### Thumbnail
