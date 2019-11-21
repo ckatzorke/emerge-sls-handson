@@ -113,7 +113,7 @@ sls invoke local -f hello -p testdata/data.json -m POST
 Now we want to deploy to azure.  
 There are some steps necessary
 
-First, we need a service-principal
+First, we need a service-principal, a user that does the job.
 
 Login to azure cli
 
@@ -139,7 +139,7 @@ This will yield something like
   "tenant": "8a1a8f97-85cc-41c2-851e-ef32aed34110"
 }
 ```
-**Note that the password cannot be retrieved later!** If you cant remember the credentials, you need toreset your principal with `az ad sp credential reset --name http://emerge-2019-serverless`.
+**Note that the password cannot be retrieved later!** If you cant remember the credentials, you need to reset your principal with `az ad sp credential reset --name http://emerge-2019-serverless`.
 
 Export some values as environment variables
 
