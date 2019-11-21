@@ -14,7 +14,8 @@ Scaffold a new serverless project, using the `serverless`or `sls` command:
 sls create -t azure-nodejs -p emerge-sls-handson
 ```
 
-Change directory and install all dependencies
+Change directory and install all dependencies.  
+**Note** If you are using node version manager, please make sure that you are using node 10.x! E.g. running `nvm use 10`.  You can create a `nvmrc` file containing the version number (like `10.17.0`).
 
 ```bash
 cd emerge-sls-handson && npm install
