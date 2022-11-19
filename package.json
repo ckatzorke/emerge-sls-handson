@@ -18,7 +18,7 @@
     "serverless-azure-functions": "^1.0.2",
     "serverless-webpack": "^5.3.1",
     "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.10"
+    "webpack-cli": "^3.3.12"
   },
   "engines": {
     "node": ">=10.0.0 <11.0.0"
